@@ -12,8 +12,8 @@ buildscript {
 
 dependencies {
     compile "com.android.support:support-v4:21.0.0"
-    compile "org.scala-lang:scala-library:2.11.4"
     compile "org.msgpack:msgpack-scala_2.11:0.6.11"
+    compile "com.android.support:multidex:1.0.0"
 }
 
 android {
@@ -26,6 +26,7 @@ android {
         targetSdkVersion 21
         versionCode 1
         versionName "0.1.0"
+        testInstrumentationRunner "com.android.test.runner.MultiDexTestRunner"
     }
 
     sourceSets {
@@ -44,13 +45,18 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled true
-            proguardFile file("proguard-rules.pro")
+            minifyEnabled false
             applicationIdSuffix ".debug"
+            dependencies {
+                provided "org.scala-lang:scala-library:2.11.4"
+            }
         }
         release {
             minifyEnabled true
             proguardFile file("proguard-rules.pro")
+            dependencies {
+                compile "org.scala-lang:scala-library:2.11.4"
+            }
         }
     }
 
@@ -60,5 +66,21 @@ android {
         exclude 'rootdoc.txt'
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
+    }
+
+    dexOptions {
+        preDexLibraries false
+    }
+}
+
+afterEvaluate {
+    tasks.matching {
+        it.name.startsWith("dex")
+    }.each { dx ->
+        if (dx.additionalParameters == null) {
+            dx.additionalParameters = []
+        }
+        dx.additionalParameters += "--multi-dex"
+        dx.additionalParameters += "--main-dex-list=$rootDir/main-dex-list.txt".toString()
     }
 }

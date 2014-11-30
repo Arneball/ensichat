@@ -12,8 +12,18 @@ buildscript {
 
 dependencies {
     compile "com.android.support:support-v4:21.0.0"
-    compile "org.scala-lang:scala-library:2.11.4"
     compile "org.msgpack:msgpack-scala_2.11:0.6.11"
+    compile 'com.j256.ormlite:ormlite-android:4.48'
+    compile(group: 'com.typesafe.akka', name: 'akka-actor_2.11', version: '2.3.7') {
+        transitive = false
+    }
+    compile(group: 'com.typesafe', name: 'config', version:'1.2.1') {
+        transitive = false
+    }
+    compile 'com.mcxiaoke.volley:library:1.0.8'
+    compile 'com.google.code.gson:gson:2.3'
+    releaseCompile "org.scala-lang:scala-library:2.11.4"
+    debugProvided "org.scala-lang:scala-library:2.11.4"
 }
 
 android {
@@ -34,7 +44,9 @@ android {
                 srcDir "src/main/scala"
             }
         }
-
+        debug {
+            manifest.srcFile 'utest/AndroidManifest.xml'
+        }
         androidTest {
             scala {
                 srcDir "src/androidTest/scala"
@@ -45,12 +57,11 @@ android {
     buildTypes {
         debug {
             minifyEnabled true
-            proguardFile file("proguard-rules.pro")
             applicationIdSuffix ".debug"
         }
         release {
             minifyEnabled true
-            proguardFile file("proguard-rules.pro")
+            proguardFiles file("proguard-rules.pro"), 'proguard-rules.txt'
         }
     }
 
